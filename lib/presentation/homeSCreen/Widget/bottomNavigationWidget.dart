@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:spot/core/constants.dart';
-import 'package:spot/presentation/addSpotScreen/addSpot.dart';
+import 'package:spot/presentation/addSpotScreen/addSpotScreen.dart';
 import 'package:spot/presentation/homeSCreen/homescreen.dart';
 import 'package:spot/presentation/settings/Settings_Screen.dart';
 
@@ -11,7 +11,7 @@ final ValueNotifier<int> navigationChangingNotifier = ValueNotifier(0);
 final List pageList = [Homescreen(), AddSpotscreen(), SettingsScreen()];
 
 class BottomNavigationWidget extends StatelessWidget {
-  BottomNavigationWidget({super.key});
+  const BottomNavigationWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
