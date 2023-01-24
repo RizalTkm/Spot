@@ -8,3 +8,5 @@ const kheight = SizedBox(height: 20);
 
 const Kwidth = SizedBox(width: 20);
 const kheight10 = SizedBox(height: 10);
+
+const gradientList = [Colors.green, Colors.white];

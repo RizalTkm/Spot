@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get/get.dart';
 import 'package:spot/core/OverallRatingSlider.dart';
 import 'package:spot/core/constants.dart';
 
@@ -55,6 +56,10 @@ class spotcard extends StatelessWidget {
                 SlidableAction(
                   onPressed: ((context) {
                     document.reference.delete();
+
+                    Get.snackbar('Alert', 'The spot has been deleted',
+                        snackPosition: SnackPosition.BOTTOM);
+
                     // FirestoreHelperFunctions()
                     //     .deleteDocFromFirebase(index, snapshot);
                   }),

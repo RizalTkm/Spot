@@ -20,8 +20,13 @@ class SmallAppbarWidget extends StatelessWidget {
         titleTextStyle: const TextStyle(
             color: kblack, fontSize: 20, fontWeight: FontWeight.bold),
         title: Row(
-          children: const [
-            Icon(Icons.handshake),
+          children: [
+            CircleAvatar(
+              radius: 20,
+              child: ClipOval(
+                child: Image.asset('asset/spot_logo/play_store_512.png'),
+              ),
+            ),
             Kwidth,
             Text('Spot'),
           ],

@@ -12,7 +12,7 @@ class FirestoreHelperFunctions {
 
   Future<void> addingSpotTofirebase(
       TextEditingController spotnameText,
-      TextEditingController spotLocationText,
+      String spotLocationText,
       TextEditingController spotdescriptiontext,
       List<File> imageList) async {
     final listofimage = await Firestorefunctions().uploadfiles(imageList);
@@ -21,20 +21,20 @@ class FirestoreHelperFunctions {
         FirebaseFirestore.instance.collection('Spot List');
     await multiImagefirebaseDocMap.add(<String, dynamic>{
       'spot_name': spotnameText.text.trim(),
-      'spot_location': spotLocationText.text.trim(),
+      'spot_location': spotLocationText.trim(),
       'list_of_imageUrl': listofimage,
       'url_of_first_image': listofimage[0],
       'spot_description': spotdescriptiontext.text.trim(),
       'time_stamp': DateTime.now().microsecondsSinceEpoch
     });
     spotnameText.clear();
-    spotLocationText.clear();
+
     spotdescriptiontext.clear();
   }
 
   Future<void> addingSpotToFirebaseWithSingleimage(
       TextEditingController spotnameText,
-      TextEditingController spotLocationText,
+      String spotLocationText,
       TextEditingController spotdescriptiontext,
       File? image) async {
     final singleimageUrl =
@@ -43,14 +43,14 @@ class FirestoreHelperFunctions {
         FirebaseFirestore.instance.collection('Spot List');
     singleImagefirebaseDocMap.add(<String, dynamic>{
       'spot_name': spotnameText.text.trim(),
-      'spot_location': spotLocationText.text.trim(),
+      'spot_location': spotLocationText.trim(),
       'spot_description': spotdescriptiontext.text.trim(),
       'url_of_first_image': singleimageUrl,
       'list_of_imageUrl': [singleimageUrl],
       'time_stamp': DateTime.now().microsecondsSinceEpoch
     });
     spotnameText.clear();
-    spotLocationText.clear();
+
     spotdescriptiontext.clear();
   }
 

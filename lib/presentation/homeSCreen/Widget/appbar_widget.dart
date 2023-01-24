@@ -21,15 +21,20 @@ class AppbarWidget extends StatelessWidget {
         titleTextStyle: const TextStyle(
             color: kblack, fontSize: 20, fontWeight: FontWeight.bold),
         title: Row(
-          children: const [
-            Icon(Icons.handshake),
+          children: [
+            CircleAvatar(
+              radius: 20,
+              child: ClipOval(
+                child: Image.asset('asset/spot_logo/play_store_512.png'),
+              ),
+            ),
             Kwidth,
-            Text('Spot'),
+            const Text('Spot'),
           ],
         ),
         actions: const [
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 10),
             child: CircleAvatar(
               radius: 50,
               foregroundColor: kwhite,

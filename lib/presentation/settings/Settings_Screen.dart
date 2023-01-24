@@ -14,14 +14,20 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () {
-              AuthService().Signout(context).then((value) =>
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Successfully signed out'))));
-            },
-            child: const Text('Sign out')),
+      body: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 80,
+            child: ElevatedButton(
+                onPressed: () {
+                  AuthService().Signout(context).then((value) =>
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Successfully signed out'))));
+                },
+                child: const Text('Sign out')),
+          ),
+        ],
       ),
     );
   }

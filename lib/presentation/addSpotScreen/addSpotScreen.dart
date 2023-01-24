@@ -1,39 +1,30 @@
 import 'dart:io';
 
-import 'dart:math';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spot/core/constants.dart';
-import 'package:spot/core/icons.dart';
+
 import 'package:spot/core/congestionSlider.dart';
 import 'package:spot/core/worthvisitslider.dart';
 import 'package:spot/domain/Firestore_functions/firebaseHelperFuntions.dart';
-import 'package:spot/domain/Firestore_functions/firestoreImageFunctions.dart';
 
-import 'package:spot/main.dart';
+import 'package:spot/presentation/addSpotScreen/widget/current_location_access.dart';
 import 'package:spot/presentation/addSpotScreen/widget/smallAppbar_widget.dart';
 import 'package:spot/presentation/addSpotScreen/widget/spot_type_card.dart';
 import 'package:spot/presentation/addSpotScreen/widget/standard%20TextFieldMini.dart';
 import 'package:spot/presentation/addSpotScreen/widget/standard_font.dart';
 import 'package:spot/presentation/addSpotScreen/widget/standard_textfield.dart';
-import 'package:spot/presentation/homeSCreen/Widget/appbar_widget.dart';
-import 'package:spot/presentation/homeSCreen/Widget/bottomNavigationWidget.dart';
-import 'package:spot/presentation/homeSCreen/Widget/mainpage.dart';
-import 'package:spot/presentation/homeSCreen/homescreen.dart';
+
+import 'package:spot/presentation/mapScreen/map_screen.dart';
 
 class AddSpotscreen extends StatefulWidget {
-  AddSpotscreen({
+  const AddSpotscreen({
     super.key,
   });
 
@@ -42,7 +33,9 @@ class AddSpotscreen extends StatefulWidget {
 }
 
 class _AddSpotscreenState extends State<AddSpotscreen> {
+  Position? _position;
   bool isloading = false;
+  String adressFromCoordinates = '';
 
   File? image;
   final List<File> _imagelist = [];
@@ -80,13 +73,7 @@ class _AddSpotscreenState extends State<AddSpotscreen> {
     }
   }
 
-  // Future<void> writeimagetofirebase(){
-
-  // }
-
   final spotnameTextcontroller = TextEditingController();
-
-  final locationTextcontroller = TextEditingController();
 
   final descriptionTextcontroller = TextEditingController();
 
@@ -210,20 +197,13 @@ class _AddSpotscreenState extends State<AddSpotscreen> {
                                         ),
                                         itemCount: _imagelist.length,
                                       ),
-                                    )
-                                    // LimitedBox(
-                                    //   maxHeight: 250,
-                                    //   child: ListView(
-                                    //     scrollDirection: Axis.vertical,
-                                    //     children: [Image.file(image!)],
-                                    //   ),
-                                    // ),
-                                    ,
+                                    ),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Text(' Tap to upload multiple images'),
+                                        const Text(
+                                            ' Tap to upload multiple images'),
                                         IconButton(
                                             onPressed: () {
                                               addmultiimage(
@@ -286,32 +266,93 @@ class _AddSpotscreenState extends State<AddSpotscreen> {
                         maxlines: 10,
                         hintfont: 'Type descripiton',
                         textcontroller: descriptionTextcontroller),
-                    StandardFont(title: 'Worth Visit'),
+                    const StandardFont(title: 'Worth Visit'),
                     WorthvisitSlider(),
                     StandardFont(title: 'Level of congestion'),
                     CongestionSliderWidget(),
-                    StandardFont(title: 'Add Location'),
-                    StandardTextField(
-                      hintfont: 'Type location',
-                      textcontroller: locationTextcontroller,
+                    const StandardFont(title: 'Add Location'),
+                    // StandardTextField(
+                    //   hintfont: 'Type location',
+                    //   textcontroller: locationTextcontroller,
+                    // ),
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              color: _position == null
+                                  ? Colors.grey.withOpacity(.4)
+                                  : Colors.grey.withOpacity(.9),
+                              borderRadius: BorderRadius.circular(5)),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 5),
+                          height: 50,
+                          width: 250,
+                          child: _position != null
+                              ? ListView(children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(adressFromCoordinates),
+                                  )
+                                ])
+                              : const Center(
+                                  child: Text('Current location is unknown')),
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                                onPressed: () async {
+                                  final positionValue = await GetCurrentLocation
+                                      .determinePosition();
+                                  final latitudeValue = positionValue.latitude;
+                                  final longitudeValue =
+                                      positionValue.longitude;
+
+                                  final addressValue =
+                                      await placemarkFromCoordinates(
+                                          latitudeValue, longitudeValue,
+                                          localeIdentifier: 'en');
+                                  final Placemark placemark = addressValue[0];
+                                  String? country = placemark.country;
+                                  String? street = placemark.street;
+                                  String? locality = placemark.locality;
+                                  String? district =
+                                      placemark.subAdministrativeArea;
+                                  String? state = placemark.administrativeArea;
+
+                                  setState(() {
+                                    _position = positionValue;
+                                    adressFromCoordinates =
+                                        '$locality,$street,$state,$country';
+                                  });
+                                  print(positionValue.toString());
+                                  print(addressValue.toString());
+                                },
+                                icon: const Icon(Icons.gps_fixed_outlined)),
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => MapScreen()));
+                                },
+                                icon: const Icon(Icons.map_rounded))
+                          ],
+                        ),
+                      ],
                     ),
                     Center(
-                      child: Container(
+                      child: SizedBox(
                         width: 100,
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () async {
                             if (spotnameTextcontroller.text.isEmpty ||
-                                locationTextcontroller.text.isEmpty ||
-                                descriptionTextcontroller.text.isEmpty) {
+                                descriptionTextcontroller.text.isEmpty ||
+                                adressFromCoordinates.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content:
                                           Text(' One of the field is Empty')));
                             } else if (spotnameTextcontroller
                                     .text.characters.first
-                                    .contains(' ') ||
-                                locationTextcontroller.text.characters.first
                                     .contains(' ') ||
                                 descriptionTextcontroller.text.characters.first
                                     .contains(' ')) {
@@ -333,7 +374,7 @@ class _AddSpotscreenState extends State<AddSpotscreen> {
                                 await FirestoreHelperFunctions()
                                     .addingSpotTofirebase(
                                         spotnameTextcontroller,
-                                        locationTextcontroller,
+                                        adressFromCoordinates,
                                         descriptionTextcontroller,
                                         _imagelist);
 
@@ -348,7 +389,7 @@ class _AddSpotscreenState extends State<AddSpotscreen> {
                                 await FirestoreHelperFunctions()
                                     .addingSpotToFirebaseWithSingleimage(
                                         spotnameTextcontroller,
-                                        locationTextcontroller,
+                                        adressFromCoordinates,
                                         descriptionTextcontroller,
                                         image);
                                 setState(() {
@@ -370,13 +411,13 @@ class _AddSpotscreenState extends State<AddSpotscreen> {
                             }
                           },
                           child: isloading
-                              ? Container(
+                              ? SizedBox(
                                   height: 40,
                                   width: 300,
                                   child: Lottie.network(
                                       'https://assets8.lottiefiles.com/packages/lf20_uay09kf4.json'),
                                 )
-                              : Text(
+                              : const Text(
                                   'Add Spot',
                                   style: TextStyle(fontSize: 15),
                                 ),
